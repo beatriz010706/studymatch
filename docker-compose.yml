@@ -1,0 +1,16 @@
+# PostgreSQL para desenvolvimento local: docker compose up -d
+services:
+  postgres:
+    image: postgres:16
+    container_name: studymatch-db
+    environment:
+      POSTGRES_DB: studymatch
+      POSTGRES_USER: studymatch
+      POSTGRES_PASSWORD: studymatch
+    ports:
+      - "5432:5432"
+    volumes:
+      - studymatch-data:/var/lib/postgresql/data
+
+volumes:
+  studymatch-data:
