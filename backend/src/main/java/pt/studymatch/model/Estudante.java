@@ -43,6 +43,16 @@ public class Estudante {
         this.anoCurricular = anoCurricular;
     }
 
+    /**
+     * Atualiza os dados do estudante (usado no PUT /api/estudantes/{id}).
+     */
+    public void atualizarDados(String numeroAluno, String nome, String curso, int anoCurricular) {
+        this.numeroAluno = numeroAluno;
+        this.nome = nome;
+        this.curso = curso;
+        this.anoCurricular = anoCurricular;
+    }
+
     public Long getId() {
         return id;
     }
