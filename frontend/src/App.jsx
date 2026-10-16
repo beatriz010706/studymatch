@@ -1,135 +1,94 @@
 import { useEffect, useState } from 'react'
-import { criarEstudante, listarEstudantes, obterEstado } from './services/api.js'
+import { listarEstudantes, obterEstado } from './services/api.js'
+import EstudantesPagina from './components/EstudantesPagina.jsx'
 
-const FORMULARIO_VAZIO = {
-    numeroAluno: '',
-    nome: '',
-    curso: 'Engenharia Informática',
-    anoCurricular: 1,
-}
+const SEPARADORES = [
+  { id: 'estudantes', titulo: 'Estudantes' },
+]
 
 function App() {
-    const [estado, setEstado] = useState(null)
-    const [estudantes, setEstudantes] = useState([])
-    const [formulario, setFormulario] = useState(FORMULARIO_VAZIO)
-    const [erro, setErro] = useState('')
+  const [estado, setEstado] = useState(null)
+  const [estudantes, setEstudantes] = useState([])
+  const [idSelecionado, setIdSelecionado] = useState('')
+  const [separador, setSeparador] = useState('estudantes')
+  const [erro, setErro] = useState('')
 
-    // Carrega o estado do backend e a lista de estudantes ao abrir a página
-    async function carregarDados() {
-        try {
-            setErro('')
-            setEstado(await obterEstado())
-            setEstudantes(await listarEstudantes())
-        } catch (excecao) {
-            setEstado(null)
-            setErro(excecao.message)
-        }
+  async function carregarEstudantes() {
+    try {
+      setErro('')
+      setEstado(await obterEstado())
+      setEstudantes(await listarEstudantes())
+    } catch (excecao) {
+      setEstado(null)
+      setErro(excecao.message)
+    }
+  }
+
+  useEffect(() => {
+    carregarEstudantes()
+  }, [])
+
+  // O estudante selecionado é partilhado por todos os separadores
+  const estudanteSelecionado = estudantes.find((estudante) => String(estudante.id) === String(idSelecionado))
+
+  function renderizarSeparador() {
+    if (separador === 'estudantes') {
+      return (
+        <EstudantesPagina
+          estudantes={estudantes}
+          aoAlterar={carregarEstudantes}
+          aoSelecionar={(id) => setIdSelecionado(String(id))}
+        />
+      )
     }
 
-    useEffect(() => {
-        carregarDados()
-    }, [])
-
-    function aoAlterarCampo(evento) {
-        const { name, value } = evento.target
-        setFormulario({ ...formulario, [name]: value })
+    if (!estudanteSelecionado) {
+      return <p className="aviso">Escolha um estudante na lista acima para continuar.</p>
     }
 
-    async function aoSubmeter(evento) {
-        evento.preventDefault()
-        try {
-            setErro('')
-            await criarEstudante({
-                ...formulario,
-                anoCurricular: Number(formulario.anoCurricular),
-            })
-            setFormulario(FORMULARIO_VAZIO)
-            await carregarDados()
-        } catch (excecao) {
-            setErro(excecao.message)
-        }
-    }
+    return null
+  }
 
-    return (
-        <main>
-            <h1>StudyMatch</h1>
+  return (
+    <main>
+      <header>
+        <h1>StudyMatch</h1>
+        {estado ? (
+          <span className="ok">Backend ligado | {estado.totalEstudantes} estudantes</span>
+        ) : (
+          <span className="erro">Backend indisponível</span>
+        )}
+      </header>
 
-            <section>
-                <h2>Estado do sistema</h2>
-                {estado ? (
-                    <p className="ok">
-                        {estado.aplicacao}: {estado.estado} | base de dados: {estado.baseDeDados} |
-                        estudantes registados: {estado.totalEstudantes}
-                    </p>
-                ) : (
-                    <p className="erro">Backend indisponível</p>
-                )}
-            </section>
+      <div className="seletor">
+        <label htmlFor="estudante">Estudante:</label>
+        <select id="estudante" value={idSelecionado} onChange={(evento) => setIdSelecionado(evento.target.value)}>
+          <option value="">-- escolher --</option>
+          {estudantes.map((estudante) => (
+            <option key={estudante.id} value={estudante.id}>
+              {estudante.numeroAluno} - {estudante.nome}
+            </option>
+          ))}
+        </select>
+      </div>
 
-            <section>
-                <h2>Novo estudante</h2>
-                <form onSubmit={aoSubmeter}>
-                    <input
-                        name="numeroAluno"
-                        placeholder="Número de aluno"
-                        value={formulario.numeroAluno}
-                        onChange={aoAlterarCampo}
-                    />
-                    <input
-                        name="nome"
-                        placeholder="Nome"
-                        value={formulario.nome}
-                        onChange={aoAlterarCampo}
-                    />
-                    <input
-                        name="curso"
-                        placeholder="Curso"
-                        value={formulario.curso}
-                        onChange={aoAlterarCampo}
-                    />
-                    <input
-                        name="anoCurricular"
-                        type="number"
-                        min="1"
-                        max="5"
-                        value={formulario.anoCurricular}
-                        onChange={aoAlterarCampo}
-                    />
-                    <button type="submit">Registar</button>
-                </form>
-                {erro && <p className="erro">{erro}</p>}
-            </section>
+      <nav>
+        {SEPARADORES.map((item) => (
+          <button
+            key={item.id}
+            className={item.id === separador ? 'ativo' : ''}
+            onClick={() => setSeparador(item.id)}
+          >
+            {item.titulo}
+          </button>
+        ))}
+      </nav>
 
-            <section>
-                <h2>Estudantes</h2>
-                {estudantes.length === 0 ? (
-                    <p>Ainda não há estudantes registados.</p>
-                ) : (
-                    <table>
-                        <thead>
-                        <tr>
-                            <th>Nº aluno</th>
-                            <th>Nome</th>
-                            <th>Curso</th>
-                            <th>Ano</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {estudantes.map((estudante) => (
-                            <tr key={estudante.id}>
-                                <td>{estudante.numeroAluno}</td>
-                                <td>{estudante.nome}</td>
-                                <td>{estudante.curso}</td>
-                                <td>{estudante.anoCurricular}</td>
-                            </tr>
-                        ))}
-                        </tbody>
-                    </table>
-                )}
-            </section>
-        </main>
-    )
+      {erro && <p className="erro">{erro}</p>}
+
+      <section>{renderizarSeparador()}</section>
+    </main>
+  )
 }
 
 export default App
-
