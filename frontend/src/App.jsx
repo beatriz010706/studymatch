@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react'
 import { listarEstudantes, obterEstado } from './services/api.js'
 import EstudantesPagina from './components/EstudantesPagina.jsx'
+import InscricoesPagina from './components/InscricoesPagina.jsx'
 
 const SEPARADORES = [
   { id: 'estudantes', titulo: 'Estudantes' },
+  { id: 'notas', titulo: 'Notas' },
 ]
 
 function App() {
@@ -46,6 +48,9 @@ function App() {
       return <p className="aviso">Escolha um estudante na lista acima para continuar.</p>
     }
 
+    if (separador === 'notas') {
+      return <InscricoesPagina estudante={estudanteSelecionado} />
+    }
     return null
   }
 
