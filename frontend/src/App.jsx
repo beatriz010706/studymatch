@@ -3,11 +3,13 @@ import { listarEstudantes, obterEstado } from './services/api.js'
 import EstudantesPagina from './components/EstudantesPagina.jsx'
 import InscricoesPagina from './components/InscricoesPagina.jsx'
 import QuestionarioPagina from './components/QuestionarioPagina.jsx'
+import PerfilPagina from './components/PerfilPagina.jsx'
 
 const SEPARADORES = [
   { id: 'estudantes', titulo: 'Estudantes' },
   { id: 'notas', titulo: 'Notas' },
   { id: 'questionario', titulo: 'Questionário' },
+  { id: 'perfil', titulo: 'Perfil' },
 ]
 
 function App() {
@@ -57,6 +59,9 @@ function App() {
       return (
         <QuestionarioPagina estudante={estudanteSelecionado} aoGuardar={() => setSeparador('perfil')} />
       )
+    }
+    if (separador === 'perfil') {
+      return <PerfilPagina estudante={estudanteSelecionado} />
     }
     return null
   }
