@@ -2,7 +2,7 @@
 
 Aplicação full-stack para a formação automática de grupos de estudantes, com base no histórico académico e nas competências acumuladas ao longo do curso.
 
-Projeto desenvolvido no âmbito da unidade curricular de **Software Quality**, na Universidade Portucalense (UPT).
+Projeto desenvolvido no âmbito da unidade curricular de **Qualidade de Software**, na Universidade Portucalense (UPT).
 
 ## Contexto
 
